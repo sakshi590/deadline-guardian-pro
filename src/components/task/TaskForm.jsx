@@ -1,24 +1,64 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import {
-  Paper,
+  Box,
+  Grid,
+  MenuItem,
+  Stack,
   TextField,
   Button,
-  Stack,
 } from "@mui/material";
 
 import { useTasks } from "../../context/TaskContext";
+import { useUI } from "../../context/UIContext";
 
-function TaskForm() {
-  const { addTask } = useTasks();
+const priorities = ["High", "Medium", "Low"];
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    priority: "Medium",
-    dueDate: "",
-  });
+const categories = [
+  "General",
+  "Study",
+  "Work",
+  "Personal",
+  "Meeting",
+  "Project",
+  "Assignment",
+];
 
+const initialState = {
+  title: "",
+  description: "",
+  category: "General",
+  priority: "Medium",
+  dueDate: "",
+};
+
+const TaskForm = ({ task }) => {
+  const { addTask, updateTask } = useTasks();
+  const { closeTaskDialog } = useUI();
+
+  const [formData, setFormData] = useState(initialState);
+  const [errors, setErrors] = useState({});
+
+  // ============================
+  // LOAD TASK INTO FORM
+  // ============================
+  useEffect(() => {
+    if (task) {
+      setFormData({
+        title: task.title || "",
+        description: task.description || "",
+        category: task.category || "General",
+        priority: task.priority || "Medium",
+        dueDate: task.dueDate || "",
+      });
+    } else {
+      setFormData(initialState);
+    }
+  }, [task]);
+
+  // ============================
+  // HANDLE INPUT CHANGE
+  // ============================
   const handleChange = (event) => {
     setFormData({
       ...formData,
@@ -26,55 +66,154 @@ function TaskForm() {
     });
   };
 
+  // ============================
+  // VALIDATION
+  // ============================
+  const validate = () => {
+    const temp = {};
+
+    if (!formData.title.trim()) {
+      temp.title = "Title is required";
+    }
+
+    if (!formData.dueDate) {
+      temp.dueDate = "Please select a due date";
+    }
+
+    setErrors(temp);
+
+    return Object.keys(temp).length === 0;
+  };
+
+  // ============================
+  // SUBMIT (FIXED UPDATE LOGIC)
+  // ============================
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!formData.title.trim()) return;
+    if (!validate()) return;
 
-    addTask(formData);
+    if (task) {
+      // ✅ FIX: preserve old task data safely
+      updateTask(task.id, {
+        ...task,
+        ...formData,
+      });
+    } else {
+      addTask(formData);
+    }
 
-    setFormData({
-      title: "",
-      description: "",
-      category: "",
-      priority: "Medium",
-      dueDate: "",
-    });
+    setFormData(initialState);
+    closeTaskDialog();
   };
 
+  // ============================
+  // UI
+  // ============================
   return (
-    <Paper sx={{ p: 3, mb: 4 }}>
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
+    <Box component="form" onSubmit={handleSubmit}>
+      <Grid container spacing={3}>
+        {/* TITLE */}
+        <Grid item xs={12}>
           <TextField
             label="Task Title"
             name="title"
+            fullWidth
             value={formData.title}
             onChange={handleChange}
-            fullWidth
-            required
+            error={!!errors.title}
+            helperText={errors.title}
           />
+        </Grid>
 
+        {/* DESCRIPTION */}
+        <Grid item xs={12}>
           <TextField
             label="Description"
             name="description"
+            multiline
+            rows={4}
+            fullWidth
             value={formData.description}
             onChange={handleChange}
-            multiline
-            rows={3}
-            fullWidth
           />
+        </Grid>
 
-          <Button
-            type="submit"
-            variant="contained"
+        {/* CATEGORY */}
+        <Grid item xs={12} md={6}>
+          <TextField
+            select
+            fullWidth
+            label="Category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
           >
-            Add Task
-          </Button>
-        </Stack>
-      </form>
-    </Paper>
+            {categories.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
+        {/* PRIORITY */}
+        <Grid item xs={12} md={6}>
+          <TextField
+            select
+            fullWidth
+            label="Priority"
+            name="priority"
+            value={formData.priority}
+            onChange={handleChange}
+          >
+            {priorities.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
+        {/* DUE DATE */}
+        <Grid item xs={12}>
+          <TextField
+            type="date"
+            fullWidth
+            label="Due Date"
+            name="dueDate"
+            value={formData.dueDate}
+            onChange={handleChange}
+            error={!!errors.dueDate}
+            helperText={errors.dueDate}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Grid>
+
+        {/* ACTIONS */}
+        <Grid item xs={12}>
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="flex-end"
+          >
+            <Button
+              variant="outlined"
+              onClick={closeTaskDialog}
+            >
+              Cancel
+            </Button>
+
+            <Button variant="contained" type="submit">
+              {task ? "Update Task" : "Create Task"}
+            </Button>
+          </Stack>
+        </Grid>
+      </Grid>
+    </Box>
   );
-}
+};
 
 export default TaskForm;

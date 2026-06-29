@@ -1,36 +1,76 @@
-import { Box, Toolbar } from "@mui/material";
+// src/components/layout/Layout.jsx
+
 import { Outlet } from "react-router-dom";
+import { Box, Toolbar } from "@mui/material";
 
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import Footer from "./Footer";
+
+// Global Dialogs
+import TaskDialog from "../task/TaskDialog";
+
 import { useUI } from "../../context/UIContext";
 
-function Layout() {
+const DRAWER_WIDTH = 270;
+
+const Layout = () => {
   const { sidebarOpen } = useUI();
-  const drawerWidth = sidebarOpen ? 240 : 70;
 
   return (
-    <Box sx={{ display: "flex" }}>
-      {/* Global Navigation Structure */}
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
+      {/* Top Navigation */}
       <Navbar />
+
+      {/* Sidebar */}
       <Sidebar />
 
-      {/* Dynamic Route Content Area */}
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: `calc(100% - ${drawerWidth}px)`,
-          ml: `${drawerWidth}px`,
-          transition: "margin-left 0.3s ease, width 0.3s ease",
+          width: {
+            md: `calc(100% - ${
+              sidebarOpen ? DRAWER_WIDTH : 80
+            }px)`,
+          },
+          transition: "all 0.3s ease",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <Toolbar /> {/* Spaces content directly below the fixed height Navbar */}
-        <Outlet />
+        {/* Space for Navbar */}
+        <Toolbar />
+
+        {/* Page Content */}
+        <Box
+          sx={{
+            flex: 1,
+            p: {
+              xs: 2,
+              sm: 3,
+              md: 4,
+            },
+          }}
+        >
+          <Outlet />
+        </Box>
+
+        {/* Footer */}
+        <Footer />
       </Box>
+
+      {/* Global Dialogs */}
+      <TaskDialog />
     </Box>
   );
-}
+};
 
 export default Layout;

@@ -1,31 +1,18 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
-import Layout from "./components/layout/Layout";
-
-import Dashboard from "./pages/Dashboard";
-import Tasks from "./pages/Tasks";
-import Calendar from "./pages/Calendar";
-import AI from "./pages/AI";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+    <BrowserRouter>
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+      />
 
-      {/* Protected Layout Routes */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/ai" element={<AI />} />
-        <Route path="/profile" element={<Profile />} />
-      </Route>
-    </Routes>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 

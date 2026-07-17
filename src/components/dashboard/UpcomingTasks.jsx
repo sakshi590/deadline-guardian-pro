@@ -1,5 +1,4 @@
 // src/components/dashboard/UpcomingTasks.jsx
-
 import {
   Card,
   CardContent,
@@ -7,12 +6,13 @@ import {
   Stack,
   Box,
   Chip,
+  alpha, 
 } from "@mui/material";
 
 import { useTasks } from "../../context/TaskContext";
 
 const UpcomingTasks = () => {
-  const { tasks } = useTasks();
+  const { tasks = [] } = useTasks() || {}; // Guard against initial empty database loads safely
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -25,19 +25,23 @@ const UpcomingTasks = () => {
 
   return (
     <Card
-      elevation={3}
+      elevation={0}
       sx={{
-        borderRadius: 4,
+        borderRadius: "24px", 
+        border: "1px solid",
+        borderColor: "divider", 
+        bgcolor: "background.paper", 
         height: "100%",
+        boxShadow: (theme) => theme.palette.mode === "dark" ? "0 10px 30px rgba(0,0,0,0.3)" : "0 10px 30px rgba(0, 0, 0, 0.01)",
       }}
     >
-      <CardContent>
-        <Typography variant="h6" fontWeight={700} mb={3}>
+      <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
+        <Typography variant="subtitle1" fontWeight={800} sx={{ color: "text.primary", mb: 3.5, letterSpacing: "-0.01em" }}>
           Upcoming Tasks
         </Typography>
 
         {upcoming.length === 0 ? (
-          <Typography color="text.secondary">
+          <Typography sx={{ color: "text.secondary", fontWeight: 500, fontSize: "0.925rem" }}>
             No upcoming tasks 🎉
           </Typography>
         ) : (
@@ -47,52 +51,77 @@ const UpcomingTasks = () => {
                 key={task.id}
                 sx={{
                   p: 2,
-                  borderRadius: 3,
-                  bgcolor: "background.default",
-                  border: "1px solid #e5e7eb",
-                  transition: "0.2s",
+                  borderRadius: "16px",
+                  bgcolor: "background.default", 
+                  border: "1px solid",
+                  borderColor: "divider",
+                  transition: "all 0.2s ease-in-out",
                   "&:hover": {
-                    transform: "translateY(-2px)",
-                    boxShadow: 2,
+                    transform: "translateY(-1px)",
+                    borderColor: (theme) => alpha(theme.palette.text.primary, 0.2),
+                    boxShadow: (theme) => theme.palette.mode === "dark" ? "0 4px 12px rgba(0,0,0,0.4)" : "0 4px 12px rgba(15, 23, 42, 0.02)",
                   },
                 }}
               >
-                {/* Title + Priority */}
+                {/* Title + Priority Row */}
+                {/* ✅ FIXED: Transferred the flex properties to the theme-safe sx style wrapper block */}
                 <Stack
                   direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
+                  spacing={2}
+                  sx={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
                 >
-                  <Typography fontWeight={600}>
+                  <Typography variant="subtitle2" fontWeight={700} sx={{ color: "text.primary", lineHeight: 1.4 }}>
                     {task.title}
                   </Typography>
 
                   <Chip
                     label={task.priority}
                     size="small"
-                    color={
-                      task.priority === "High"
-                        ? "error"
-                        : task.priority === "Medium"
-                        ? "warning"
-                        : "success"
-                    }
+                    sx={{
+                      borderRadius: "20px",
+                      fontWeight: 700,
+                      fontSize: "0.7rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.02em",
+                      px: 0.5,
+                      bgcolor: (theme) =>
+                        task.priority === "High"
+                          ? alpha(theme.palette.error.main, 0.08)
+                          : task.priority === "Medium"
+                          ? alpha(theme.palette.warning.main, 0.08)
+                          : alpha(theme.palette.success.main, 0.08),
+                      color:
+                        task.priority === "High"
+                          ? "error.main"
+                          : task.priority === "Medium"
+                          ? "warning.main"
+                          : "success.main",
+                      border: "1px solid",
+                      borderColor: (theme) =>
+                        task.priority === "High"
+                          ? alpha(theme.palette.error.main, 0.2)
+                          : task.priority === "Medium"
+                          ? alpha(theme.palette.warning.main, 0.2)
+                          : alpha(theme.palette.success.main, 0.2),
+                      "& .MuiChip-label": { px: 1 }
+                    }}
                   />
                 </Stack>
 
-                {/* Date */}
+                {/* ================= ADAPTIVE DATE FIELD ================= */}
                 <Typography
-                  variant="body2"
-                  color={
-                    isToday(task.dueDate)
-                      ? "error"
-                      : "text.secondary"
-                  }
-                  mt={1}
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    fontWeight: 600,
+                    mt: 1.5,
+                    color: isToday(task.dueDate) ? "error.main" : "text.secondary", 
+                  }}
                 >
-                  {isToday(task.dueDate)
-                    ? "Due Today"
-                    : `Due: ${task.dueDate}`}
+                  {isToday(task.dueDate) ? "⚠️ Due Today" : `Due: ${task.dueDate}`}
                 </Typography>
               </Box>
             ))}

@@ -1,5 +1,4 @@
 // src/components/layout/Layout.jsx
-
 import { Outlet } from "react-router-dom";
 import { Box, Toolbar } from "@mui/material";
 
@@ -9,7 +8,6 @@ import Footer from "./Footer";
 
 // Global Dialogs
 import TaskDialog from "../task/TaskDialog";
-
 import { useUI } from "../../context/UIContext";
 
 const DRAWER_WIDTH = 270;
@@ -22,52 +20,54 @@ const Layout = () => {
       sx={{
         display: "flex",
         minHeight: "100vh",
-        bgcolor: "background.default",
+        // ✅ UPDATED: Adapts cleanly to off-white in Light mode and dark slate in Dark mode
+        bgcolor: "background.default", 
+        // ✅ UPDATED: Adapts cleanly to charcoal slate in Light mode and pure white in Dark mode
+        color: "text.primary", 
       }}
     >
-      {/* Top Navigation */}
+      {/* Top Navigation Bar */}
       <Navbar />
 
-      {/* Sidebar */}
+      {/* Main Collapsible Sidebar Navigation Panel */}
       <Sidebar />
 
-      {/* Main Content */}
+      {/* Main Core View Area Chassis */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           width: {
-            md: `calc(100% - ${
-              sidebarOpen ? DRAWER_WIDTH : 80
-            }px)`,
+            md: `calc(100% - ${sidebarOpen ? DRAWER_WIDTH : 80}px)`,
           },
-          transition: "all 0.3s ease",
+          transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
           display: "flex",
           flexDirection: "column",
+          minWidth: 0, 
         }}
       >
-        {/* Space for Navbar */}
+        {/* Safe Spacer Offset for Floating Navbar Layout */}
         <Toolbar />
 
-        {/* Page Content */}
+        {/* Dynamic Inner Page Content Mounting Node Container */}
         <Box
           sx={{
             flex: 1,
             p: {
-              xs: 2,
-              sm: 3,
-              md: 4,
+              xs: 2.5,
+              sm: 3.5,
+              md: 5, 
             },
           }}
         >
           <Outlet />
         </Box>
 
-        {/* Footer */}
+        {/* Universal Footer Component Section */}
         <Footer />
       </Box>
 
-      {/* Global Dialogs */}
+      {/* Global Application Dialogue Subclasses */}
       <TaskDialog />
     </Box>
   );

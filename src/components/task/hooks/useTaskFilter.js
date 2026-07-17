@@ -1,5 +1,4 @@
 // src/components/task/hooks/useTaskFilter.js
-
 import { useMemo } from "react";
 
 const priorityOrder = {
@@ -22,7 +21,9 @@ const useTaskFilter = (
   const filteredTasks = useMemo(() => {
     let result = [...tasks];
 
-    // Search
+    // ============================
+    // KEYWORD SEARCH PATTERN MATCHING
+    // ============================
     if (search.trim()) {
       const keyword = search.toLowerCase();
 
@@ -35,58 +36,62 @@ const useTaskFilter = (
       });
     }
 
-    // Priority Filter
+    // ============================
+    // STRUCTURAL FILTERS MATRIX
+    // ============================
     if (priority !== "All") {
       result = result.filter(
         (task) => task.priority === priority
       );
     }
 
-    // Category Filter
     if (category !== "All") {
       result = result.filter(
         (task) => task.category === category
       );
     }
 
-    // Status Filter
     if (status !== "All") {
       result = result.filter(
         (task) => task.status === status
       );
     }
 
-    // Sorting
+    // ============================
+    // SORTING STACK EVALUATION
+    // ============================
     result.sort((a, b) => {
       let comparison = 0;
 
       switch (sortBy) {
         case "title":
-          comparison = a.title.localeCompare(b.title);
+          comparison = (a.title || "").localeCompare(b.title || "");
           break;
 
         case "priority":
           comparison =
-            priorityOrder[b.priority] -
-            priorityOrder[a.priority];
+            (priorityOrder[b.priority] || 0) -
+            (priorityOrder[a.priority] || 0);
           break;
 
         case "createdAt":
+          // Firestore backend timestamps/ISO strings fallback safely here
           comparison =
-            new Date(a.createdAt) -
-            new Date(b.createdAt);
+            new Date(a.createdAt || 0) -
+            new Date(b.createdAt || 0);
           break;
 
         case "dueDate":
-        default:
-          comparison =
-            new Date(a.dueDate) -
-            new Date(b.dueDate);
+        default: {
+          // OPTIMIZATION: If due dates are empty string tokens "", push them to the end of list values gracefully
+          const dateA = a.dueDate ? new Date(a.dueDate).getTime() : (sortOrder === "asc" ? Infinity : -Infinity);
+          const dateB = b.dueDate ? new Date(b.dueDate).getTime() : (sortOrder === "asc" ? Infinity : -Infinity);
+          comparison = dateA - dateB;
+          break;
+        }
       }
 
-      return sortOrder === "asc"
-        ? comparison
-        : -comparison;
+      return sortOrder === "asc" ? comparison : -comparison;
     });
 
     return result;

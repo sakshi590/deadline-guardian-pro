@@ -1,3 +1,4 @@
+// src/theme/theme.js
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 import { lightThemeOptions } from "./lightTheme";
 import { darkThemeOptions } from "./darkTheme";
@@ -8,6 +9,7 @@ import { darkThemeOptions } from "./darkTheme";
  */
 export const getTheme = (mode = "light") => {
   const options = mode === "dark" ? darkThemeOptions : lightThemeOptions;
+  const isDark = mode === "dark";
 
   let theme = createTheme({
     ...options,
@@ -23,56 +25,17 @@ export const getTheme = (mode = "light") => {
         "sans-serif",
       ].join(","),
 
-      h1: {
-        fontWeight: 700,
-        fontSize: "2.5rem",
-      },
-
-      h2: {
-        fontWeight: 700,
-        fontSize: "2rem",
-      },
-
-      h3: {
-        fontWeight: 600,
-        fontSize: "1.75rem",
-      },
-
-      h4: {
-        fontWeight: 600,
-        fontSize: "1.5rem",
-      },
-
-      h5: {
-        fontWeight: 600,
-        fontSize: "1.25rem",
-      },
-
-      h6: {
-        fontWeight: 600,
-        fontSize: "1rem",
-      },
-
-      subtitle1: {
-        fontWeight: 500,
-      },
-
-      subtitle2: {
-        fontWeight: 500,
-      },
-
-      body1: {
-        fontSize: "0.95rem",
-      },
-
-      body2: {
-        fontSize: "0.875rem",
-      },
-
-      button: {
-        fontWeight: 600,
-        textTransform: "none",
-      },
+      h1: { fontWeight: 700, fontSize: "2.5rem" },
+      h2: { fontWeight: 700, fontSize: "2rem" },
+      h3: { fontWeight: 600, fontSize: "1.75rem" },
+      h4: { fontWeight: 600, fontSize: "1.5rem" },
+      h5: { fontWeight: 600, fontSize: "1.25rem" },
+      h6: { fontWeight: 600, fontSize: "1rem" },
+      subtitle1: { fontWeight: 500 },
+      subtitle2: { fontWeight: 500 },
+      body1: { fontSize: "0.95rem" },
+      body2: { fontSize: "0.875rem" },
+      button: { fontWeight: 600, textTransform: "none" },
     },
 
     components: {
@@ -83,23 +46,32 @@ export const getTheme = (mode = "light") => {
             padding: 0,
             transition: "all .3s ease",
           },
-
           "*": {
             boxSizing: "border-box",
           },
-
           "*::-webkit-scrollbar": {
             width: 8,
             height: 8,
           },
-
+          // FIXED: Scrollbars now adapt dynamically based on dark/light mode
           "*::-webkit-scrollbar-thumb": {
-            background: "#8B5CF6",
+            background: isDark ? "#475569" : "#CBD5E1",
             borderRadius: 10,
+            "&:hover": {
+              background: isDark ? "#64748B" : "#94A3B8",
+            },
           },
-
           "*::-webkit-scrollbar-track": {
-            background: "#F3F4F6",
+            background: isDark ? "#0F172A" : "#F8FAFC",
+          },
+        },
+      },
+
+      // FIXED: Merged external orphaned block rules cleanly inside components mapping
+      MuiTypography: {
+        styleOverrides: {
+          root: {
+            color: "inherit",
           },
         },
       },
@@ -109,6 +81,7 @@ export const getTheme = (mode = "light") => {
           root: {
             borderRadius: 16,
             boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+            backgroundImage: "none", // Prevent dark mode overlay layer anomalies
           },
         },
       },
@@ -118,6 +91,19 @@ export const getTheme = (mode = "light") => {
           root: {
             borderRadius: 18,
             transition: "0.3s",
+            backgroundImage: "none",
+            color: "inherit",
+          },
+        },
+      },
+
+      MuiListItemText: {
+        styleOverrides: {
+          primary: {
+            color: "inherit",
+          },
+          secondary: {
+            color: "inherit",
           },
         },
       },
@@ -126,7 +112,6 @@ export const getTheme = (mode = "light") => {
         defaultProps: {
           disableElevation: true,
         },
-
         styleOverrides: {
           root: {
             borderRadius: 12,
@@ -154,6 +139,5 @@ export const getTheme = (mode = "light") => {
   });
 
   theme = responsiveFontSizes(theme);
-
   return theme;
 };

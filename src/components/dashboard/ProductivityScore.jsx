@@ -1,4 +1,5 @@
-import { Box, Typography } from "@mui/material";
+// src/components/dashboard/ProductivityScore.jsx
+import { Box, Typography, alpha } from "@mui/material";
 
 function ProductivityScore({ score }) {
   let message = "";
@@ -9,18 +10,46 @@ function ProductivityScore({ score }) {
   else message = "Let's complete a few more tasks today!";
 
   return (
-    <Box sx={{ mt: 4, pt: 3, borderTop: "1px solid #f1f5f9" }}>
-      <Typography fontSize="14px" fontWeight={700} color="#334155">
+    <Box sx={{ mt: 4, pt: 3, borderTop: "1px solid", borderColor: "divider" }}>
+      {/* Subsection Header Label */}
+      <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 700, letterSpacing: "-0.01em" }}>
         Productivity Score
       </Typography>
 
-      <Typography variant="h4" color="#2563eb" fontWeight={700} sx={{ mt: 1, letterSpacing: "-0.5px" }}>
-        {score} <span style={{ fontSize: "16px", color: "#64748b", fontWeight: 500 }}>/ 100</span>
+      {/* ================= REFINED DYNAMIC SCORE PANEL ================= */}
+      <Typography 
+        variant="h4" 
+        fontWeight={800} 
+        sx={{ 
+          mt: 1.5, 
+          color: "primary.main", // ✅ UPDATED: Adapts dynamically across brand theme modes
+          letterSpacing: "-0.03em" 
+        }}
+      >
+        {score} 
+        <span style={{ fontSize: "15px", color: "text.secondary", fontWeight: 600, marginLeft: "4px" }}>
+          / 100
+        </span>
       </Typography>
 
-      <Typography fontSize="13px" color="#64748b" sx={{ mt: 1, fontWeight: 500 }}>
-        {message}
-      </Typography>
+      {/* ================= PILL MESSAGE BANNER ================= */}
+      <Box 
+        sx={{ 
+          mt: 2, 
+          px: 2, 
+          py: 1, 
+          borderRadius: "10px", 
+          // ✅ UPDATED: Uses alpha() on the primary theme palette to prevent text bleaching blurs in dark mode
+          bgcolor: (theme) => alpha(theme.palette.primary.main, 0.06), 
+          border: "1px solid",
+          borderColor: (theme) => alpha(theme.palette.primary.main, 0.15),
+          display: "inline-block"
+        }}
+      >
+        <Typography sx={{ fontSize: "0.825rem", color: "primary.main", fontWeight: 700, letterSpacing: "-0.01em" }}>
+          {message}
+        </Typography>
+      </Box>
     </Box>
   );
 }

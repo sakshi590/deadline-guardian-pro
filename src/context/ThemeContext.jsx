@@ -3,36 +3,33 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useMemo,
-  useState,
 } from "react";
 
-import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import {
+  ThemeProvider as MuiThemeProvider,
+} from "@mui/material/styles";
 
 import CssBaseline from "@mui/material/CssBaseline";
 
 import { getTheme } from "../theme/theme";
+import { useSettings } from "./SettingsContext";
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
+  const { settings } = useSettings();
 
-  const [mode, setMode] = useState(() => {
-    return localStorage.getItem("themeMode") || "light";
-  });
+  const prefersDark = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
 
-  useEffect(() => {
-    localStorage.setItem("themeMode", mode);
-  }, [mode]);
-
-  const toggleTheme = () => {
-    setMode((prev) => (prev === "light" ? "dark" : "light"));
-  };
-
-  const setLightTheme = () => setMode("light");
-
-  const setDarkTheme = () => setMode("dark");
+  const mode =
+    settings.theme === "system"
+      ? prefersDark
+        ? "dark"
+        : "light"
+      : settings.theme;
 
   const theme = useMemo(() => getTheme(mode), [mode]);
 
@@ -40,9 +37,7 @@ export const ThemeProvider = ({ children }) => {
     <ThemeContext.Provider
       value={{
         mode,
-        toggleTheme,
-        setLightTheme,
-        setDarkTheme,
+        isDark: mode === "dark",
       }}
     >
       <MuiThemeProvider theme={theme}>
@@ -54,7 +49,15 @@ export const ThemeProvider = ({ children }) => {
 };
 
 export const useThemeContext = () => {
-  return useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error(
+      "useThemeContext must be used inside ThemeProvider."
+    );
+  }
+
+  return context;
 };
 
 export default ThemeContext;

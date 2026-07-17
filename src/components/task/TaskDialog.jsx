@@ -1,11 +1,10 @@
+// src/components/task/TaskDialog.jsx
 import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   IconButton,
   Typography,
-  Button,
   Divider,
 } from "@mui/material";
 
@@ -27,54 +26,65 @@ const TaskDialog = () => {
       open={taskDialogOpen}
       onClose={closeTaskDialog}
       fullWidth
-      maxWidth="md"
+      maxWidth="sm"
       scroll="paper"
+      disableEnforceFocus
+      closeAfterTransition
       PaperProps={{
         sx: {
-          borderRadius: 4,
+          borderRadius: "24px",
           overflow: "hidden",
+          bgcolor: "background.paper",
+          backgroundImage: "none",
+          border: "1px solid",
+          borderColor: "divider",
+          boxShadow: (theme) => theme.palette.mode === "dark" 
+            ? "0 24px 70px rgba(0, 0, 0, 0.7)" 
+            : "0 24px 70px rgba(15, 23, 42, 0.08)",
         },
       }}
     >
+      {/* ================= MODAL HEADER SECTOR ================= */}
       <DialogTitle
+        component="div"
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          py: 2,
+          py: 2.5,
+          px: 3,
+          bgcolor: "background.paper",
         }}
       >
-        <Typography variant="h5" fontWeight={700}>
-          {taskMode === "edit"
-            ? "Edit Task"
-            : "Create New Task"}
+        <Typography 
+          variant="h5" 
+          fontWeight={800}
+          sx={{ color: "text.primary", letterSpacing: "-0.02em" }}
+        >
+          {taskMode === "edit" ? "Edit Task" : "Create New Task"}
         </Typography>
 
-        <IconButton onClick={closeTaskDialog}>
-          <CloseRoundedIcon />
+        <IconButton 
+          onClick={closeTaskDialog}
+          sx={{ 
+            color: "text.secondary",
+            "&:hover": { bgcolor: "action.hover", color: "text.primary" }
+          }}
+        >
+          <CloseRoundedIcon sx={{ fontSize: 22 }} />
         </IconButton>
       </DialogTitle>
 
-      <Divider />
+      <Divider sx={{ borderColor: "divider" }} />
 
-      <DialogContent sx={{ pt: 3 }}>
+      {/* ================= FORM BODY REGION ================= */}
+      <DialogContent sx={{ p: 3, bgcolor: "background.paper" }}>
+        {/* ✅ FIXED: Safely passes selected task dataset object or null parameters down to form controls */}
         <TaskForm
-          task={
-            taskMode === "edit"
-              ? selectedTask
-              : null
-          }
+          task={taskMode === "edit" ? selectedTask : null}
+          onSuccess={closeTaskDialog}
         />
       </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button
-          variant="outlined"
-          onClick={closeTaskDialog}
-        >
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };

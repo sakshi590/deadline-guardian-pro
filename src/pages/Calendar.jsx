@@ -1,5 +1,4 @@
 // src/pages/Calendar.jsx
-
 import {
   Box,
   Typography,
@@ -9,18 +8,22 @@ import CalendarView from "../components/calendar/CalendarView";
 
 const Calendar = () => {
   return (
-    <Box>
-
+    <Box sx={{ maxWidth: "1400px", mx: "auto" }}>
+      {/* ================= CALENDAR WORKSPACE HEADER ================= */}
       <Typography
         variant="h4"
-        fontWeight={700}
-        mb={3}
+        fontWeight={800} // Upgraded weight for premium brand harmony profile
+        sx={{
+          color: "text.primary", // ✅ UPDATED: Shifts cleanly from dark slate into pure white text across theme flips
+          letterSpacing: "-0.025em",
+          mb: 4.5,
+        }}
       >
         Calendar
       </Typography>
 
+      {/* Main Internal Interactive Calendar Sheet View Container */}
       <CalendarView />
-
     </Box>
   );
 };

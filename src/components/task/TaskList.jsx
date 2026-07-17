@@ -1,5 +1,4 @@
 // src/components/task/TaskList.jsx
-
 import {
   Grid,
   Typography,
@@ -10,7 +9,9 @@ import TaskCard from "./TaskCard";
 import EmptyState from "../common/EmptyState";
 
 const TaskList = ({ tasks = [] }) => {
-  if (!tasks.length) {
+  const cleanTasks = Array.isArray(tasks) ? tasks : [];
+
+  if (!cleanTasks.length) {
     return (
       <EmptyState
         title="No Tasks Found"
@@ -20,27 +21,35 @@ const TaskList = ({ tasks = [] }) => {
   }
 
   return (
-    <Box mt={2}>
-      <Grid container spacing={3}>
-        {tasks.map((task) => (
+    <Box sx={{ mt: 2 }}>
+      {/* ✅ FIXED: Removed the invalid boolean 'item' attribute prop to prevent console logging pollution */}
+      <Grid container spacing={3.5}>
+        {cleanTasks.map((task) => (
           <Grid
             key={task.id}
-            size={{ xs: 12, sm: 6, lg: 4 }}
+            xs={12} 
+            sm={6} 
+            lg={4}
+            sx={{ display: "flex", flexDirection: "column" }}
           >
             <TaskCard task={task} />
           </Grid>
         ))}
       </Grid>
 
+      {/* ================= ADAPTIVE SUMMARY TRACKER ================= */}
       <Typography
         variant="body2"
-        color="text.secondary"
         sx={{
-          mt: 3,
+          mt: 4,
           textAlign: "center",
+          color: "text.secondary",
+          fontWeight: 600,
+          fontSize: "0.85rem",
+          letterSpacing: "0.02em"
         }}
       >
-        Total Tasks: {tasks.length}
+        Total Operational Tasks Monitored: {cleanTasks.length}
       </Typography>
     </Box>
   );

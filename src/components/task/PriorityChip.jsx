@@ -1,35 +1,38 @@
 // src/components/task/PriorityChip.jsx
-
-import { Chip } from "@mui/material";
-
-const colors = {
-  High: {
-    bg: "#FEE2E2",
-    color: "#DC2626",
-  },
-  Medium: {
-    bg: "#FEF3C7",
-    color: "#D97706",
-  },
-  Low: {
-    bg: "#DCFCE7",
-    color: "#16A34A",
-  },
-};
+import { Chip, alpha } from "@mui/material";
 
 const PriorityChip = ({ priority }) => {
-  const style =
-    colors[priority] || colors.Medium;
+  // Map raw string labels to system semantic theme palette keys
+  const config = {
+    High: "error",
+    Medium: "warning",
+    Low: "success",
+  }[priority] || "warning";
 
   return (
     <Chip
       label={priority}
       size="small"
       sx={{
-        bgcolor: style.bg,
-        color: style.color,
         fontWeight: 700,
-        borderRadius: 2,
+        fontSize: "0.7rem",
+        textTransform: "uppercase",
+        letterSpacing: "0.03em",
+        borderRadius: "8px", // Standardised to match the modern dashboard family curvature
+        
+        // ✅ UPDATED: Background tint adaptively softens in dark mode instead of staying blindingly bright light-mode white
+        bgcolor: (theme) => alpha(theme.palette[config].main, 0.08),
+        
+        // ✅ FIXED: Standardised key evaluation mapping to point safely into theme variables without breaking string templates
+        color: (theme) => theme.palette[config].main,
+        
+        // Seamless micro-border edge framing trace line
+        border: "1px solid",
+        borderColor: (theme) => alpha(theme.palette[config].main, 0.16),
+        
+        "& .MuiChip-label": {
+          px: 1.2,
+        },
       }}
     />
   );

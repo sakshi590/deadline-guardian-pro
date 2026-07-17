@@ -1,3 +1,4 @@
+// src/components/task/TaskCard.jsx
 import {
   Card,
   CardContent,
@@ -6,6 +7,7 @@ import {
   IconButton,
   Checkbox,
   Box,
+  alpha,
 } from "@mui/material";
 
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
@@ -18,99 +20,112 @@ import { useTasks } from "../../context/TaskContext";
 import { useUI } from "../../context/UIContext";
 
 const TaskCard = ({ task }) => {
-  const { deleteTask, toggleComplete } = useTasks();
-  const { openTaskDialog } = useUI();
+  const { toggleComplete, setTaskToDelete } = useTasks();
+  const { openTaskDialog, openConfirmDialog } = useUI();
+
+  // ✅ CRITICAL CRASH PROTECTION FIX: Prevents "Cannot read properties of undefined" loops 
+  if (!task || typeof task !== "object") return null;
 
   return (
     <Card
-      onClick={() => toggleComplete(task.id)} // ✅ CLICK ANYWHERE
-      elevation={3}
+      onClick={() => toggleComplete(task.id)}
+      elevation={0}
       sx={{
-        borderRadius: 4,
-        transition: ".25s",
+        borderRadius: "24px",
         cursor: "pointer",
-
+        bgcolor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+        transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
         "&:hover": {
-          transform: "translateY(-5px)",
-          boxShadow: 8,
+          transform: "translateY(-3px)",
+          borderColor: (theme) => alpha(theme.palette.text.primary, 0.15),
+          boxShadow: (theme) => theme.palette.mode === "dark" 
+            ? "0 12px 32px rgba(0,0,0,0.4)" 
+            : "0 12px 32px rgba(15, 23, 42, 0.03)",
         },
       }}
     >
-      <CardContent onClick={(e) => e.stopPropagation()}>
-        {/* HEADER */}
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="flex-start"
-        >
+      <CardContent 
+        onClick={(e) => e.stopPropagation()} 
+        sx={{ p: 3, "&:last-child": { pb: 3 } }}
+      >
+        {/* ================= HEADER SECTOR ================= */}
+        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
           <Checkbox
-            checked={task.completed}
+            checked={!!task.completed} // Coerces truthy values safely
             onChange={() => toggleComplete(task.id)}
+            sx={{ p: 0, color: "text.secondary", "&.Mui-checked": { color: "success.main" } }}
           />
-
           <PriorityChip priority={task.priority} />
         </Stack>
 
-        {/* TITLE */}
+        {/* ================= CONTENT AREA ================= */}
         <Typography
           variant="h6"
-          fontWeight={700}
-          mt={1}
+          fontWeight={800}
           sx={{
-            textDecoration: task.completed
-              ? "line-through"
-              : "none",
-            opacity: task.completed ? 0.6 : 1,
+            mt: 2,
+            color: "text.primary",
+            letterSpacing: "-0.01em",
+            lineHeight: 1.4,
+            textDecoration: task.completed ? "line-through" : "none",
+            opacity: task.completed ? 0.45 : 1,
           }}
         >
-          {task.title}
+          {task.title || "Untitled Task"}
         </Typography>
 
-        {/* DESCRIPTION */}
         <Typography
-          color="text.secondary"
-          mt={1}
-          sx={{
-            opacity: task.completed ? 0.6 : 1,
-          }}
+          variant="body2"
+          sx={{ mt: 1, color: "text.secondary", lineHeight: 1.6, fontWeight: 500, opacity: task.completed ? 0.45 : 1 }}
         >
-          {task.description}
+          {task.description || ""}
         </Typography>
 
-        {/* DATE */}
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          mt={3}
-        >
-          <CalendarMonthRoundedIcon fontSize="small" />
-
-          <Typography variant="body2">
-            {task.dueDate}
+        {/* ================= CALENDAR DATE FIELD ================= */}
+        <Stack direction="row" spacing={1} sx={{ mt: 3, color: "text.secondary", opacity: task.completed ? 0.45 : 1, alignItems: "center" }}>
+          <CalendarMonthRoundedIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: "0.8rem" }}>
+            {task.dueDate || "No Due Date"}
           </Typography>
         </Stack>
 
-        <Box mt={3} />
+        <Box sx={{ mt: 2.5, borderTop: "1px solid", borderColor: "divider" }} />
 
-        {/* ACTIONS */}
-        <Stack
-          direction="row"
-          justifyContent="flex-end"
-          spacing={1}
-        >
+        {/* ================= ACTION ROW SECTOR ================= */}
+        <Stack direction="row" sx={{ justifyContent: "flex-end", spacing: 1, mt: 1.5 }}>
           <IconButton
-            color="primary"
-            onClick={() => openTaskDialog(task)}
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              openTaskDialog(task, "edit");
+            }}
+            sx={{ 
+              color: "primary.main",
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05),
+              p: 1,
+              "&:hover": { bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12) }
+            }}
           >
-            <EditRoundedIcon />
+            <EditRoundedIcon sx={{ fontSize: 18 }} />
           </IconButton>
 
           <IconButton
-            color="error"
-            onClick={() => deleteTask(task.id)}
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              setTaskToDelete(task.id);
+              openConfirmDialog();
+            }}
+            sx={{ 
+              color: "error.main",
+              bgcolor: (theme) => alpha(theme.palette.error.main, 0.05),
+              p: 1,
+              "&:hover": { bgcolor: (theme) => alpha(theme.palette.error.main, 0.12) }
+            }}
           >
-            <DeleteRoundedIcon />
+            <DeleteRoundedIcon sx={{ fontSize: 18 }} />
           </IconButton>
         </Stack>
       </CardContent>
